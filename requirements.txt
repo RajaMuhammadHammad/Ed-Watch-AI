@@ -7,5 +7,6 @@ PyMuPDF==1.24.2
 requests==2.31.0
 faiss-cpu
 numpy==1.26.4
+huggingface-hub==0.8.1
 sentence-transformers==2.2.2
 gunicorn==21.2.0   # ✅ Needed for Render deployment
