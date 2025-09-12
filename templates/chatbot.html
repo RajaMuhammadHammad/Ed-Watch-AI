@@ -1,0 +1,117 @@
+  <!DOCTYPE html>
+  <html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SustainaBot - Sustainability Intelligence Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+
+  <body>
+    <!-- Navbar -->
+    <header>
+      <nav class="container">
+        <a href="{{ url_for('home') }}" class="logo">
+          <img src="{{ url_for('static', filename='img/logo.png') }}" alt="EdWatch Logo">
+        </a>
+      </nav>
+    </header>
+
+    <!-- Floating background elements -->
+    <div class="floating-element floating-1"></div>
+    <div class="floating-element floating-2"></div>
+
+    
+      <!-- Main Content -->
+      <div class="main-container">
+        <div class="header">
+          <h1><i class="fas fa-leaf"></i>GreenSense AI</h1>
+          <p class="subtitle">5 minutes. One chat. A complete sustainability roadmap</p>
+        </div>
+
+        {% if not response %}
+        <div class="chat-container" id="chat-box">
+          <div class="message bot">
+            <div class="bot-avatar avatar">🤖</div>
+            <div class="message-content">
+              <i class="fas fa-hand-wave"></i> Welcome to SustainaBot! I'm here to help you build a sustainability roadmap
+              for your company. Let's get started by telling me about your business.
+            </div>
+          </div>
+        </div>
+        
+            {% endif %}
+
+        {% if response %}
+        <div class="roadmap-wrapper">
+          <div class="roadmap-section">
+            <h1>📋 Sustainability Roadmap</h1>
+            
+              <form method="POST" action="/download" target="_blank">
+              <input type="hidden" name="response" id="pdf-response">
+              <input type="hidden" id="clientEmailInput" name="client_email">
+              <input type="hidden" name="company_name" value="{{ company_name }}">
+              <input type="hidden" name="region" value="{{ region }}">
+              <input type="hidden" name="major_countries" value="{{ major_countries }}">
+              <input type="hidden" name="sector_industry" value="{{ sector_industry }}">
+              <input type="hidden" name="company_size" value="{{ company_size }}">
+              <input type="hidden" name="listing_status" value="{{ listing_status }}">
+              <input type="hidden" name="total_emissions" value="{{ total_emissions }}">
+
+              <button type="submit" class="download-btn" onclick="preparePDF()">
+                <i class="fas fa-download"></i>
+                Download Full Report
+              </button>
+            </form>
+          </div>
+
+
+            {% if roadmap_html %}
+            <div class="roadmap-cards">
+              <h2>📌 5-Year Roadmap</h2>
+              {{ roadmap_html|safe }}
+            </div>
+            {% endif %}
+
+            <div id="response-content">{{ response|safe }}</div>
+            
+
+            <div style="margin-top: 30px; text-align: center;">
+    <a href="{{ url_for('chatbot') }}" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Back to Chat
+    </a>
+  </div>
+
+            
+          <!-- Save chat history automatically when response is available -->
+          <script>
+            function preparePDF() {
+              document.getElementById('pdf-response').value = document.getElementById('response-content').innerHTML;
+            }
+
+            // Automatically save chat when response is received
+            window.onload = function () {
+              onResponseReceived("{{ company_name }}");
+            };
+          </script>
+        </div>
+        {% endif %}
+
+        <footer class="footer">
+          <strong>Ed-Watch</strong> | <em>Your online resource partner</em>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Fixed Input Area -->
+    <form id="chat-form" method="POST" action="/generate" style="display:none;">
+      <input type="hidden" name="chat_data" id="chat-data">
+      <input type="hidden" id="clientEmailInput" name="client_email">
+    </form>
+
+    <script src="{{ url_for('static', filename='chatbot.js') }}"></script>
+  </body>
+
+  </html>

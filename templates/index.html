@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EdWatch - Smart Education Chatbot</title>
+    <link rel="stylesheet" href="/static/homestyle.css">
+</head>
+
+<body>
+    <!-- Floating background elements -->
+    <div class="floating-element floating-1"></div>
+    <div class="floating-element floating-2"></div>
+    <div class="floating-element floating-3"></div>
+
+    <header>
+        <nav class="container">
+            <a href="#" class="logo">
+                <img src="static/img/logo.png" alt="EdWatch Logo">
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+                    </nav>
+    </header>
+
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>SMART DIAGNOSTICS FOR COMPANIES</h1>
+                    <p>Ed Watch is your smart AI chatbot for sustainability. Just answer a few questions to get a custom
+                        report with a 5-year roadmap, carbon reduction steps, SDG suggestions, and certifications. View
+                        it instantly or download as a PDF — quick, easy, and impactful.</p>
+                    <div class="hero-buttons">
+                        <a href="#" class="btn-secondary">Watch Demo</a>
+                        <!-- CORRECT -->
+                        <a href="{{ url_for('chatbot') }}" class="btn-primary">
+                            <i class="fas fa-comments"></i>
+                            Try Our Chatbot
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="floating-card">
+                        <div class="card-icon">💬</div>
+                        <div class="card-title">Sustainability Chat</div>
+                        <div class="card-text">Ask questions and get instant answers on climate, energy, and SDGs</div>
+                    </div>
+                    <div class="floating-card">
+                        <div class="card-icon">📚</div>
+                        <div class="card-title">AI-Powered Reports</div>
+                        <div class="card-text">Generate smart sustainability plans and downloadable PDF reports</div>
+                    </div>
+                    <div class="floating-card">
+                        <div class="card-icon">🎯</div>
+                        <div class="card-title">Progress Tracking</div>
+                        <div class="card-text">Monitor your learning journey and achievements</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title scroll-reveal">Why Choose EdWatch Smart AI Chatbot?</h2>
+            <div class="features-grid">
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="feature-title">AI Sustainability Guide</h3>
+                    <p class="feature-description">Get expert guidance on sustainability, SDGs, and carbon reduction
+                        with our intelligent chatbot.</p>
+                </div>
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">📄</div>
+                    <h3 class="feature-title">Instant Report Generation</h3>
+                    <p class="feature-description">Create a personalized sustainability report in seconds — complete
+                        with a 5-year roadmap.</p>
+                </div>
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">🌍</div>
+                    <h3 class="feature-title">SDG Recommendations</h3>
+                    <p class="feature-description">Discover which Sustainable Development Goals best align with your
+                        sector and vision.</p>
+                </div>
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Carbon Footprint Insights</h3>
+                    <p class="feature-description">Track your carbon output and get suggestions to reduce your
+                        environmental impact.</p>
+                </div>
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">🏅</div>
+                    <h3 class="feature-title">Accreditation Guidance</h3>
+                    <p class="feature-description">Get advice on sustainability certifications and accreditations
+                        relevant to your field.</p>
+                </div>
+                <div class="feature-card scroll-reveal">
+                    <div class="feature-icon">⚡</div>
+                    <h3 class="feature-title">Fast & Easy to Use</h3>
+                    <p class="feature-description">No complex setup — just enter your details and get actionable
+                        sustainability insights instantly.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section scroll-reveal">
+                    <h3>UAE Office</h3>
+                    <a href="#">Smart Links Business Management Services, Office: P3, Empire Heights, Business Bay,
+                        Dubai</a>
+                    <a href="#">P.O. Box: 251428</a>
+                    <a href="#">+971 5 0565 3520</a>
+                    <a href="#">contact@ed-watch.org</a>
+                </div>
+                <div class="footer-section scroll-reveal">
+                    <h3>Pakistan Office</h3>
+                    <a href="#">Ed-Watch (Pvt.) Limited, Office No. 106, 1st Floor, Silver Trade Tower, Gulshan-e-Iqbal
+                        block 13A, Karachi.</a>
+                    <a href="#">021-34831184</a>
+                    <a href="#">contact@ed-watch.org</a>
+                </div>
+                <div class="footer-section scroll-reveal">
+                    <h3>USA Office</h3>
+                    <a href="#">Ed Watch LLC, 20 Hallo Street, Edison, New Jersey 08837, USA</a>
+                    <a href="#">+1 (903) 424-6912</a>
+                    <a href="#">contact@ed-watch.org</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 EdWatch. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/homescript.js"></script>
