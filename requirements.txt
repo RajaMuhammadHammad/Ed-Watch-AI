@@ -1,12 +1,24 @@
 Flask==3.0.3
-xhtml2pdf==0.2.15         # bump: fixes bugs + has stable wheels
+gunicorn==21.2.0
+xhtml2pdf==0.2.15
 PyPDF2==3.0.1
 python-dotenv==1.0.1
+requests==2.32.3
+
+# Google Gemini / Generative AI
 google-generativeai==0.4.1
-PyMuPDF==1.24.9           # bump: 1.24.2 sometimes builds from source
-requests==2.32.3          # bump: latest stable
-faiss-cpu>=1.9.0          # pin to wheel release (Linux, py311 available)
+
+# PDF + text parsing
+PyMuPDF==1.24.9
+
+# ML / Embeddings / RAG
+faiss-cpu==1.7.4
 numpy==1.26.4
-huggingface-hub==0.24.6   # pin to stable wheel
+huggingface-hub==0.24.6
 sentence-transformers==2.7.0
-gunicorn==21.2.0          # ✅ Needed for Render deployment
+transformers==4.37.2
+scikit-learn==1.4.2
+scipy==1.12.0
+
+# Torch CPU build (smaller, avoids CUDA libs)
+torch==2.2.2+cpu --extra-index-url https://download.pytorch.org/whl/cpu
