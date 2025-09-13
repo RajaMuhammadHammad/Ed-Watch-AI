@@ -1,12 +1,12 @@
 Flask==3.0.3
-xhtml2pdf==0.2.11
+xhtml2pdf==0.2.15         # bump: fixes bugs + has stable wheels
 PyPDF2==3.0.1
 python-dotenv==1.0.1
 google-generativeai==0.4.1
-PyMuPDF==1.24.2
-requests==2.31.0
-faiss-cpu
+PyMuPDF==1.24.9           # bump: 1.24.2 sometimes builds from source
+requests==2.32.3          # bump: latest stable
+faiss-cpu==1.8.0          # pin to wheel release (Linux, py311 available)
 numpy==1.26.4
-huggingface-hub
-sentence-transformers
-gunicorn==21.2.0   # ✅ Needed for Render deployment
+huggingface-hub==0.24.6   # pin to stable wheel
+sentence-transformers==2.7.0
+gunicorn==21.2.0          # ✅ Needed for Render deployment
