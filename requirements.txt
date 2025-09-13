@@ -5,7 +5,7 @@ python-dotenv==1.0.1
 google-generativeai==0.4.1
 PyMuPDF==1.24.9           # bump: 1.24.2 sometimes builds from source
 requests==2.32.3          # bump: latest stable
-faiss-cpu==1.8.0          # pin to wheel release (Linux, py311 available)
+faiss-cpu>=1.9.0          # pin to wheel release (Linux, py311 available)
 numpy==1.26.4
 huggingface-hub==0.24.6   # pin to stable wheel
 sentence-transformers==2.7.0
