@@ -20,5 +20,5 @@ transformers==4.37.2
 scikit-learn==1.4.2
 scipy==1.12.0
 
-# Torch CPU build (smaller, avoids CUDA libs)
-torch==2.2.2+cpu --extra-index-url https://download.pytorch.org/whl/cpu
+# Torch CPU build (use standard wheel instead of +cpu)
+torch==2.2.2
