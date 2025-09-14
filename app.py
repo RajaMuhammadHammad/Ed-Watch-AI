@@ -12,7 +12,7 @@ import fitz  # PyMuPDF
 
 load_dotenv()
 app = Flask(__name__)
-app.secret_key = "SECRET_KEY"  
+app.secret_key = os.getenv("SECRET_KEY", "fallback_secret")  
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))    
 model = genai.GenerativeModel('gemini-2.0-flash')
 
