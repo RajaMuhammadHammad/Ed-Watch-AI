@@ -1,18 +1,15 @@
 import faiss
 import numpy as np
-import requests
-import os
 import pickle
-import google.generativeai as genai
-
-# Configure Gemini API
-genai.configure(api_key=os.getenv("GEMINI_API_KEY_RAG"))
+import os
+from sentence_transformers import SentenceTransformer
+import requests
 
 # GitHub release file URLs
 DOCS_URL = "https://github.com/RajaMuhammadHammad/Ed-Watch-AI/releases/download/v1.0.0/documents.pkl"
 FAISS_URL = "https://github.com/RajaMuhammadHammad/Ed-Watch-AI/releases/download/v1.0.0/faiss_index.idx"
 
-# Local paths
+# Local cache paths
 DOCS_PATH = "documents.pkl"
 FAISS_PATH = "faiss_index.idx"
 
@@ -25,7 +22,7 @@ def download_file(url, filepath):
             f.write(r.content)
         print(f"[Download] Saved to {filepath}")
 
-# Ensure files exist
+# Ensure files exist locally
 download_file(DOCS_URL, DOCS_PATH)
 download_file(FAISS_URL, FAISS_PATH)
 
@@ -36,17 +33,16 @@ faiss_index = faiss.read_index(FAISS_PATH)
 with open(DOCS_PATH, "rb") as f:
     documents = pickle.load(f)
 
-# Use Gemini for query embeddings
-def embed_query_gemini(query: str):
-    resp = genai.embed_content(
-        model="models/embedding-001",
-        content=query
-    )
-    return np.array([resp['embedding']], dtype="float32")
+# Load local embedding model
+model = SentenceTransformer("all-MiniLM-L6-v2")  # lightweight, free
 
-# Retrieve context
+def embed_query_local(query: str):
+    """Compute embeddings locally using SentenceTransformer"""
+    return model.encode([query], convert_to_numpy=True).astype("float32")
+
 def retrieve_context(query, top_k=5):
-    query_embedding = embed_query_gemini(query)
+    """Retrieve top-k relevant documents from FAISS using local embeddings"""
+    query_embedding = embed_query_local(query)
     D, I = faiss_index.search(query_embedding, top_k)
     results = [documents[i] for i in I[0]]
 
@@ -54,5 +50,4 @@ def retrieve_context(query, top_k=5):
     for i, doc in enumerate(results, 1):
         content = doc.get("content", "") if isinstance(doc, dict) else str(doc)
         print(f"{i}. {content[:150]}...\n")
-
     return results
