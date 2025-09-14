@@ -1,14 +1,12 @@
+# Web framework
 Flask==3.0.3
 gunicorn==21.2.0
-xhtml2pdf==0.2.15
-PyPDF2==3.0.1
 python-dotenv==1.0.1
 requests==2.32.3
 
-# Google Gemini / Generative AI
-google-generativeai==0.4.1
-
-# PDF + text parsing
+# PDF generation and manipulation
+xhtml2pdf==0.2.15
+PyPDF2==3.0.1
 PyMuPDF==1.24.9
 
 # ML / Embeddings / RAG
@@ -16,3 +14,7 @@ faiss-cpu==1.7.4
 numpy==1.26.4
 scikit-learn==1.4.2
 scipy==1.12.0
+sentence-transformers==2.2.2   # for local embeddings
+
+# Optional: Google Gemini / Generative AI (only for text generation, not embeddings)
+google-generativeai==0.4.1
