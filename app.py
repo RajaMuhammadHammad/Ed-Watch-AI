@@ -12,7 +12,7 @@ import fitz  # PyMuPDF
 
 load_dotenv()
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "fallback_secret")  
+app.secret_key = os.getenv("SECRET_KEY", "fallback_secret")    
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))    
 model = genai.GenerativeModel('gemini-2.0-flash')
 
@@ -43,14 +43,9 @@ def generate():
             total_emissions=session.get("total_emissions", "")
         )
     
-    try:
-        query = f"Sustainability roadmap for a {data.get('company_size', '')} company in the {data.get('sector_industry', '')} sector located in {data.get('region', '')}, with focus on climate impact, energy consumption, emissions, and sustainability goals."
-        retrieved_docs = retrieve_context(query)
-        rag_context = "\n\n".join([doc.get("content", "") for doc in retrieved_docs])
-    except Exception as e:
-        print(f"[RAG Error] {e}")
-        return render_template("chatbot.html", response="Error retrieving data. Gemini API quota may have been exceeded. Please try later.")
-
+    query = f"Sustainability roadmap for a {data.get('company_size', '')} company in the {data.get('sector_industry', '')} sector located in {data.get('region', '')}, with focus on climate impact, energy consumption, emissions, and sustainability goals."
+    retrieved_docs = retrieve_context(query)
+    rag_context = "\n\n".join([doc.get("content", "") for doc in retrieved_docs])
 
     prompt = f"""
 AI Persona & Role Definition
@@ -270,13 +265,9 @@ If data is missing, write "Data not available" but still generate the full secti
 
 """
 
-     try:
-        response = model.generate_content(prompt)
-        cleaned_html = re.sub(r"```(?:html)?\s*", "", response.text, flags=re.IGNORECASE)
-        cleaned_html = re.sub(r"```", "", cleaned_html).strip()
-    except Exception as e:
-        print(f"[Gemini Generate Error] {e}")
-        return render_template("chatbot.html", response="Error generating report. Please try again later.")
+    response = model.generate_content(prompt)
+    cleaned_html = re.sub(r"```(?:html)?\s*", "", response.text, flags=re.IGNORECASE)
+    cleaned_html = re.sub(r"```", "", cleaned_html).strip()
 
 
    # ✅ Save report + user data into session
