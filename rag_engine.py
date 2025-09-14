@@ -1,18 +1,30 @@
-import faiss
-import numpy as np
-import pickle
 import os
-from sentence_transformers import SentenceTransformer
 import requests
+import pickle
+import numpy as np
+import faiss
+import google.generativeai as genai
 
+# -------------------------------
+# Configure Gemini API
+# -------------------------------
+genai.configure(api_key=os.getenv("GEMINI_API_KEY_RAG"))
+
+# -------------------------------
 # GitHub release file URLs
+# -------------------------------
 DOCS_URL = "https://github.com/RajaMuhammadHammad/Ed-Watch-AI/releases/download/v1.0.0/documents.pkl"
 FAISS_URL = "https://github.com/RajaMuhammadHammad/Ed-Watch-AI/releases/download/v1.0.0/faiss_index.idx"
 
-# Local cache paths
+# -------------------------------
+# Local paths
+# -------------------------------
 DOCS_PATH = "documents.pkl"
 FAISS_PATH = "faiss_index.idx"
 
+# -------------------------------
+# Download helper
+# -------------------------------
 def download_file(url, filepath):
     if not os.path.exists(filepath):
         print(f"[Download] Fetching {url}...")
@@ -21,33 +33,54 @@ def download_file(url, filepath):
         with open(filepath, "wb") as f:
             f.write(r.content)
         print(f"[Download] Saved to {filepath}")
+    else:
+        print(f"[Download] File already exists: {filepath}")
 
-# Ensure files exist locally
+# Ensure files exist
 download_file(DOCS_URL, DOCS_PATH)
 download_file(FAISS_URL, FAISS_PATH)
 
+# -------------------------------
 # Load FAISS index
+# -------------------------------
 faiss_index = faiss.read_index(FAISS_PATH)
 
+# -------------------------------
 # Load documents
+# -------------------------------
 with open(DOCS_PATH, "rb") as f:
     documents = pickle.load(f)
 
-# Load local embedding model
-model = SentenceTransformer("all-MiniLM-L6-v2")  # lightweight, free
+# -------------------------------
+# Gemini embedding function
+# -------------------------------
+def embed_query_gemini(query: str):
+    resp = genai.embed_content(
+        model="models/embedding-001",
+        content=query
+    )
+    embedding = resp.get('embedding')
+    if embedding is None:
+        raise ValueError("No embedding returned from Gemini API")
+    return np.array([embedding], dtype="float32")
 
-def embed_query_local(query: str):
-    """Compute embeddings locally using SentenceTransformer"""
-    return model.encode([query], convert_to_numpy=True).astype("float32")
-
+# -------------------------------
+# Retrieve context
+# -------------------------------
 def retrieve_context(query, top_k=5):
-    """Retrieve top-k relevant documents from FAISS using local embeddings"""
-    query_embedding = embed_query_local(query)
+    query_embedding = embed_query_gemini(query)
     D, I = faiss_index.search(query_embedding, top_k)
-    results = [documents[i] for i in I[0]]
+
+    results = []
+    for idx in I[0]:
+        if idx < len(documents):
+            doc = documents[idx]
+            results.append(doc)
 
     print(f"[RAG] Top-{top_k} results for query: {query}\n")
     for i, doc in enumerate(results, 1):
         content = doc.get("content", "") if isinstance(doc, dict) else str(doc)
         print(f"{i}. {content[:150]}...\n")
+
     return results
+
