@@ -1,20 +1,37 @@
+# ----------------------------
 # Web framework
+# ----------------------------
 Flask==3.0.3
 gunicorn==21.2.0
 python-dotenv==1.0.1
 requests==2.32.3
 
+# ----------------------------
 # PDF generation and manipulation
+# ----------------------------
 xhtml2pdf==0.2.15
 PyPDF2==3.0.1
 PyMuPDF==1.24.9
 
+# ----------------------------
 # ML / Embeddings / RAG
-numpy==1.26.4
-scipy==1.12.0
-scikit-learn==1.4.2
+# ----------------------------
 faiss-cpu==1.7.4
+numpy==1.26.4
+scikit-learn==1.4.2
+scipy==1.12.0
 sentence-transformers==2.2.2
 
-# Optional: Google Gemini / Generative AI (only for text generation, not embeddings)
-google-generativeai==0.4.1
+# Pre-built CPU-only PyTorch (lighter, faster install)
+torch==2.3.1+cpu
+torchvision==0.18.1+cpu
+torchaudio==2.3.1+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# ----------------------------
+# Google Gemini / Generative AI
+# ----------------------------
+google-generativeai==0.4.2
+grpcio==1.58.0
+grpcio-status==1.58.0
+google-api-core==2.12.0
