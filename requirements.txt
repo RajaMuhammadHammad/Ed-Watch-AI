@@ -1,21 +1,9 @@
-Flask==3.0.3
-gunicorn==21.2.0
-xhtml2pdf==0.2.15
-PyPDF2==3.0.1
-python-dotenv==1.0.1
-requests==2.32.3
-
-# Google Gemini / Generative AI
-google-generativeai==0.4.1
-
-# PDF + text parsing
-PyMuPDF==1.24.9
-
-# ML / Embeddings / RAG
-faiss-cpu==1.7.4
-numpy==1.26.4
-huggingface-hub==0.24.6
-sentence-transformers==2.7.0
-transformers==4.37.2
-scikit-learn==1.4.2
-scipy==1.12.0
+Flask==3.0.3           # you import Flask
+gunicorn==21.2.0       # Render needs this
+xhtml2pdf==0.2.15      # you use pisa for PDF export
+python-dotenv==1.0.1   # you call load_dotenv()
+requests==2.32.3       # you download .pkl and .idx
+google-generativeai==0.4.1  # you call genai.configure, embed_content
+PyMuPDF==1.24.9        # you import fitz
+faiss-cpu==1.7.4       # you use faiss index
+numpy==1.26.4          # embeddings + faiss arrays
