@@ -9,7 +9,7 @@ DOCS_PATH = os.path.join(BASE_DIR, "documents.pkl")
 FAISS_PATH = os.path.join(BASE_DIR, "faiss_index.faiss")
 
 DOCS_URL = "https://github.com/RajaMuhammadHammad/Ed-Watch-AI/releases/download/v1.0.0/documents.pkl"
-FAISS_URL = "https://github.com/RajaMuhammadHammad/Ed-Watch-AI/releases/download/v1.0.0/faiss_index.faiss"
+FAISS_URL = "https://github.com/RajaMuhammadHammad/Ed-Watch-AI/releases/download/v1.0.0/faiss_index.idx"
 
 # 1. Auto-download files if missing
 def download_if_missing(url, path):
