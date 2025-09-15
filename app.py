@@ -45,7 +45,7 @@ def generate():
     
     query = f"Sustainability roadmap for a {data.get('company_size', '')} company in the {data.get('sector_industry', '')} sector located in {data.get('region', '')}, with focus on climate impact, energy consumption, emissions, and sustainability goals."
     retrieved_docs = retrieve_context(query)
-    rag_context = "\n\n".join([doc.get("content", "") for doc in retrieved_docs])
+    rag_context = "\n\n".join(retrieved_docs)
 
     prompt = f"""
 AI Persona & Role Definition
