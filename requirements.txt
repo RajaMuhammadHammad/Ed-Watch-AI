@@ -5,5 +5,6 @@ python-dotenv==1.0.1   # you call load_dotenv()
 requests==2.32.3       # you download .pkl and .idx
 google-generativeai==0.4.1  # you call genai.configure, embed_content
 PyMuPDF==1.24.9        # you import fitz
+sentence-transformers==2.2.2
 faiss-cpu==1.7.4       # you use faiss index
 numpy==1.26.4          # embeddings + faiss arrays
