@@ -18,8 +18,8 @@ google-generativeai==0.4.1
 
 # Machine learning / RAG
 sentence-transformers>=3.0.0
-faiss-cpu==1.7.4.post2
+faiss-cpu>=1.7.4,<1.13.0
 numpy>=1.24.0
 
-# HuggingFace Hub (ensure modern version for sentence-transformers)
+# HuggingFace Hub
 huggingface-hub>=0.23.0
