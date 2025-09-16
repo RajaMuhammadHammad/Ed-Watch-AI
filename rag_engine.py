@@ -1,72 +1,46 @@
 import os
 import pickle
 import faiss
-import requests
 import numpy as np
-from sentence_transformers import SentenceTransformer  # ✅ Needed
 
 # -------------------------
-# File paths
+# Paths
 # -------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DOCS_PATH = os.path.join(BASE_DIR, "documents.pkl")
-FAISS_PATH = os.path.join(BASE_DIR, "faiss_index.idx")
-
-DOCS_URL = "https://github.com/RajaMuhammadHammad/Ed-Watch-AI/releases/download/v1.0.0/documents.pkl"
-FAISS_URL = "https://github.com/RajaMuhammadHammad/Ed-Watch-AI/releases/download/v1.0.0/faiss_index.idx"
+DOCS_PATH = os.path.join(BASE_DIR, "documents.pkl")   # stores (text, embedding)
+FAISS_PATH = os.path.join(BASE_DIR, "faiss_index.idx")  # FAISS index file
 
 # -------------------------
-# Download helper
-# -------------------------
-def download_file(url, dest):
-    if not os.path.exists(dest):
-        print(f"⬇️ Downloading {os.path.basename(dest)} ...")
-        r = requests.get(url, stream=True)
-        r.raise_for_status()
-        with open(dest, "wb") as f:
-            for chunk in r.iter_content(1024):
-                f.write(chunk)
-        print(f"✅ Downloaded {os.path.basename(dest)}")
-    else:
-        print(f"✅ Found cached {os.path.basename(dest)}")
-
-# -------------------------
-# Ensure required files exist
-# -------------------------
-download_file(DOCS_URL, DOCS_PATH)
-download_file(FAISS_URL, FAISS_PATH)
-
-# -------------------------
-# Load documents + FAISS
+# Load Documents & Index
 # -------------------------
 with open(DOCS_PATH, "rb") as f:
-    documents = pickle.load(f)
+    documents = pickle.load(f)   # list of dicts: {"text": str, "embedding": np.array}
 
 faiss_index = faiss.read_index(FAISS_PATH)
 
-print(f"📂 Loaded {len(documents)} documents")
-print(f"📦 FAISS index dimension: {faiss_index.d}")
+# Extract embeddings into array (needed for retrieval)
+embeddings = np.array([doc["embedding"] for doc in documents], dtype="float32")
 
-# ✅ Load the same encoder used when building the FAISS index
-encoder = SentenceTransformer("all-MiniLM-L6-v2")
 
 # -------------------------
-# Retrieval
+# Retrieval Function
 # -------------------------
-def retrieve_context(query: str, k: int = 5):
-    """Retrieve top-k docs given a query string."""
-    # Convert query into embedding
-    query_vec = encoder.encode([query])
-    query_vec = np.array(query_vec).astype("float32")
+def retrieve_context(query_vector, top_k=3):
+    """
+    Retrieve top_k most relevant docs based on vector similarity.
+    query_vector: np.array of shape (d,) already precomputed
+    """
+    if not isinstance(query_vector, np.ndarray):
+        query_vector = np.array(query_vector, dtype="float32")
 
-    # Search FAISS
-    scores, indices = faiss_index.search(query_vec, k)
+    if query_vector.ndim == 1:
+        query_vector = query_vector.reshape(1, -1)
+
+    # Search in FAISS
+    distances, indices = faiss_index.search(query_vector, top_k)
 
     results = []
-    for idx, score in zip(indices[0], scores[0]):
-        if idx < len(documents):
-            results.append({
-                "content": documents[idx]["content"],
-                "score": float(score)
-            })
+    for idx in indices[0]:
+        if 0 <= idx < len(documents):
+            results.append(documents[idx]["text"])
     return results
