@@ -432,7 +432,7 @@ def validate_email():
         return {"valid": False, "error": "Email is required"}, 400
 
     api_key = os.getenv("ABSTRACT_API_KEY")
-    url = f"https://emailvalidation.abstractapi.com/v1/?api_key={api_key}&email={email}"
+    url = f"https://emailreputation.abstractapi.com/v1/?api_key={api_key}&email={email}"
 
     try:
         response = get(url)
