@@ -14,11 +14,4 @@ PyMuPDF==1.24.9
 # ML / Embeddings / RAG
 faiss-cpu==1.8.0
 numpy==1.26.4
-sentence-transformers==2.7.0
-scikit-learn==1.5.2
 
-# Force CPU torch build (prevents CUDA libs download)
-torch==2.2.2+cpu
-torchvision==0.17.2+cpu
-torchaudio==2.2.2+cpu
---extra-index-url https://download.pytorch.org/whl/cpu
