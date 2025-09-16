@@ -3,7 +3,7 @@ import pickle
 import faiss
 import requests
 import numpy as np
-import google.generativeai as genai
+from sentence_transformers import SentenceTransformer  # ✅ Needed
 
 # -------------------------
 # File paths
@@ -47,12 +47,21 @@ faiss_index = faiss.read_index(FAISS_PATH)
 print(f"📂 Loaded {len(documents)} documents")
 print(f"📦 FAISS index dimension: {faiss_index.d}")
 
+# ✅ Load the same encoder used when building the FAISS index
+encoder = SentenceTransformer("all-MiniLM-L6-v2")
+
 # -------------------------
 # Retrieval
 # -------------------------
-def retrieve_context(query_vec: np.ndarray, k: int = 5):
-    """Retrieve top-k docs given an embedding vector."""
-    scores, indices = faiss_index.search(query_vec.reshape(1, -1), k)
+def retrieve_context(query: str, k: int = 5):
+    """Retrieve top-k docs given a query string."""
+    # Convert query into embedding
+    query_vec = encoder.encode([query])
+    query_vec = np.array(query_vec).astype("float32")
+
+    # Search FAISS
+    scores, indices = faiss_index.search(query_vec, k)
+
     results = []
     for idx, score in zip(indices[0], scores[0]):
         if idx < len(documents):
