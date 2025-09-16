@@ -1,23 +1,24 @@
-# Web framework
-Flask==3.0.3
+flask==3.0.3
 gunicorn==21.2.0
-
-# PDF generation & parsing
 xhtml2pdf==0.2.15
 PyPDF2==3.0.1
-PyMuPDF==1.24.9   # fitz binding
-
-# Environment variables
 python-dotenv==1.0.1
-
-# HTTP requests
 requests==2.32.3
 
-# Google Gemini (for generation only)
+# Google Gemini / Generative AI
 google-generativeai==0.4.1
 
-# Machine learning / RAG
-sentence-transformers==2.7.0
-faiss-cpu>=1.7.4,<1.13.0
-numpy>=1.24.0
+# PDF + text parsing
+PyMuPDF==1.24.9
 
+# ML / Embeddings / RAG
+faiss-cpu==1.8.0
+numpy==1.26.4
+sentence-transformers==2.7.0
+scikit-learn==1.5.2
+
+# Force CPU torch build (prevents CUDA libs download)
+torch==2.2.2+cpu
+torchvision==0.17.2+cpu
+torchaudio==2.2.2+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
