@@ -267,7 +267,7 @@ If data is missing, write "Data not available" but still generate the full secti
 
 """
 
-    response = model.generate_content(prompt)
+    response = model.generate_content(prompt, request_options={"timeout": 180})
     cleaned_html = re.sub(r"```(?:html)?\s*", "", response.text, flags=re.IGNORECASE)
     cleaned_html = re.sub(r"```", "", cleaned_html).strip()
 
