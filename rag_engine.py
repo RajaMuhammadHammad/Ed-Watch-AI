@@ -3,6 +3,7 @@ import pickle
 import faiss
 import requests
 import numpy as np
+import google.generativeai as genai
 
 # -------------------------
 # Paths
@@ -14,6 +15,11 @@ IDX_PATH = os.path.join(BASE_DIR, "faiss_index.idx")
 
 DOCS_URL = "https://github.com/RajaMuhammadHammad/Ed-Watch-AI/releases/download/v1.0.0/documents.pkl"
 IDX_URL = "https://github.com/RajaMuhammadHammad/Ed-Watch-AI/releases/download/v1.0.0/faiss_index.idx"
+
+# -------------------------
+# Configure Gemini
+# -------------------------
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 # -------------------------
 # Download helper
@@ -55,10 +61,23 @@ print(f"📂 Loaded {len(documents)} documents")
 print(f"📦 FAISS index dimension: {faiss_index.d}")
 
 # -------------------------
+# Embedding function
+# -------------------------
+def get_embedding(text: str) -> np.ndarray:
+    """Generate embedding using Gemini API"""
+    response = genai.embeddings.create(
+        model="gemini-text-embedding-3.0",
+        input=text
+    )
+    vec = np.array(response.data[0].embedding, dtype=np.float32)
+    return vec
+
+# -------------------------
 # Retrieval
 # -------------------------
-def retrieve_context(query_vec: np.ndarray, k: int = 5):
-    """Retrieve top-k docs given an embedding vector."""
+def retrieve_context(query: str, k: int = 5):
+    """Retrieve top-k documents given a text query"""
+    query_vec = get_embedding(query)
     scores, indices = faiss_index.search(query_vec.reshape(1, -1), k)
     results = []
     for idx, score in zip(indices[0], scores[0]):
@@ -67,4 +86,8 @@ def retrieve_context(query_vec: np.ndarray, k: int = 5):
                 "content": documents[idx]["content"],
                 "score": float(score)
             })
+    # Optional: debug log
+    print(f"Retrieved top-{k} docs for query: '{query[:50]}...'")
+    for r in results:
+        print(f"- score: {r['score']:.4f}, content snippet: {r['content'][:80]}...")
     return results
