@@ -423,31 +423,6 @@ def download_pdf():
     response.headers["Content-Disposition"] = f"attachment; filename={company_name}_sustainability_report.pdf"
     response.headers["Content-Type"] = "application/pdf"
     return response
-
-@app.route("/validate-email", methods=["POST"])
-def validate_email():
-    email = request.json.get("email")
-    if not email:
-        return {"valid": False, "error": "Email is required"}, 400
-
-    # ✅ Load API key from environment variable
-    api_key = os.getenv("ABSTRACT_API_KEY")
-    if not api_key:
-        return {"valid": False, "error": "API key missing"}, 500
-
-    url = f"https://emailreputation.abstractapi.com/v1/?api_key={api_key}&email={email}"
-
-    try:
-        response = requests.get(url)
-        result = response.json()
-
-        is_deliverable = result.get("deliverability") == "DELIVERABLE"
-        is_valid_format = result.get("is_valid_format", {}).get("value", False)
-
-        return {"valid": is_deliverable and is_valid_format, "raw": result}
-    except Exception as e:
-        print("Email validation error:", e)
-        return {"valid": False, "error": "Validation failed"}, 500
         
 
 if __name__ == "__main__":
