@@ -8,11 +8,13 @@ import google.generativeai as genai
 import os
 import json
 import re
-import fitz  # PyMuPDF
+import fitz 
+import requests
+ # PyMuPDF
 
 load_dotenv()
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "fallback_secret")    
+app.secret_key = os.getenv("SECRET_KEY", "fallback_secret")      
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))    
 model = genai.GenerativeModel('gemini-2.0-flash')
 
@@ -45,7 +47,7 @@ def generate():
     
     query = f"Sustainability roadmap for a {data.get('company_size', '')} company in the {data.get('sector_industry', '')} sector located in {data.get('region', '')}, with focus on climate impact, energy consumption, emissions, and sustainability goals."
     retrieved_docs = retrieve_context(query)
-    rag_context = "\n\n".join(doc["content"] for doc in retrieved_docs)
+    rag_context = "\n\n".join([doc.get("content", "") for doc in retrieved_docs])
 
     prompt = f"""
 AI Persona & Role Definition
@@ -423,7 +425,43 @@ def download_pdf():
     response.headers["Content-Disposition"] = f"attachment; filename={company_name}_sustainability_report.pdf"
     response.headers["Content-Type"] = "application/pdf"
     return response
-        
+
+
+
+@app.route("/validate-email", methods=["POST"])
+def validate_email():
+    email = request.json.get("email")
+    if not email:
+        return {"valid": False, "error": "Email is required"}, 400
+
+    api_key = os.getenv("ABSTRACT_API_KEY")
+    if not api_key:
+        return {"valid": False, "error": "API key missing"}, 500
+
+    url = f"https://emailreputation.abstractapi.com/v1/?api_key={api_key}&email={email}"
+
+    try:
+        response = requests.get(url)
+        result = response.json()
+
+        # ✅ Adjusted for new response format
+        deliverability = result.get("email_deliverability", {}).get("status")
+        is_format_valid = result.get("email_deliverability", {}).get("is_format_valid", False)
+
+        is_valid = (
+            is_format_valid and deliverability in ["deliverable", "risky"]
+        )
+
+        return {"valid": is_valid, "raw": result}
+    except Exception as e:
+        print("Email validation error:", e)
+        return {"valid": False, "error": "Validation failed"}, 500
+
+
+    except Exception as e:
+        print("Email validation error:", e)
+        return {"valid": False, "error": "Validation failed"}, 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
