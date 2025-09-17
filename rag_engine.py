@@ -1,113 +1,67 @@
 import os
 import pickle
+import requests
 import faiss
 import numpy as np
-import google.generativeai as genai
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 
-# -----------------------------
-# Gemini 2.0 API Configuration
-# -----------------------------
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# -----------------------------
-# Paths
-# -----------------------------
-DOCS_PATH = "documents.pkl"
-IDX_PATH = "faiss_index.idx"
-FAISS_PATH = "faiss_index.faiss"
+# File paths
+DOCS_PATH = os.path.join(BASE_DIR, "documents.pkl")
+FAISS_IDX_PATH = os.path.join(BASE_DIR, "faiss_index.idx")
+FAISS_FAISS_PATH = os.path.join(BASE_DIR, "faiss_index.faiss")
 
-# -----------------------------
-# Lazy-loaded variables
-# -----------------------------
-documents = None
-index = None
-tfidf_vectorizer = None
-tfidf_matrix = None
+# GitHub Releases URLs
+DOCS_URL = "https://github.com/RajaMuhammadHammad/Ed-Watch-AI/releases/download/v1.0.0/documents.pkl"
+IDX_URL = "https://github.com/RajaMuhammadHammad/Ed-Watch-AI/releases/download/v1.0.0/faiss_index.idx"
 
-# -----------------------------
-# Load Documents lazily
-# -----------------------------
+def download_file(url, local_path):
+    if not os.path.exists(local_path):
+        print(f"⬇️ Downloading {os.path.basename(local_path)} ...")
+        r = requests.get(url)
+        r.raise_for_status()
+        with open(local_path, "wb") as f:
+            f.write(r.content)
+        print(f"✅ Downloaded {os.path.basename(local_path)}")
+
+# Download files if missing
+download_file(DOCS_URL, DOCS_PATH)
+download_file(IDX_URL, FAISS_IDX_PATH)
+
+# Convert .idx → .faiss if missing
+if not os.path.exists(FAISS_FAISS_PATH):
+    print(f"🔄 Converting {os.path.basename(FAISS_IDX_PATH)} → {os.path.basename(FAISS_FAISS_PATH)} ...")
+    index = faiss.read_index(FAISS_IDX_PATH)
+    faiss.write_index(index, FAISS_FAISS_PATH)
+    print(f"✅ Converted and saved as {os.path.basename(FAISS_FAISS_PATH)}")
+
+# Load documents
 def load_documents():
-    global documents
-    if documents is None:
-        if not os.path.exists(DOCS_PATH):
-            raise FileNotFoundError(f"{DOCS_PATH} not found.")
-        with open(DOCS_PATH, "rb") as f:
-            documents = pickle.load(f)
-        print(f"📂 Loaded {len(documents)} documents")
-    return documents
+    with open(DOCS_PATH, "rb") as f:
+        docs = pickle.load(f)
+    print(f"📂 Loaded {len(docs)} documents")
+    return docs
 
-# -----------------------------
-# Load or convert FAISS index lazily
-# -----------------------------
-def load_index():
-    global index
-    if index is None:
-        if os.path.exists(FAISS_PATH):
-            index = faiss.read_index(FAISS_PATH)
-            print(f"📦 Loaded FAISS index from {FAISS_PATH}")
-        else:
-            if not os.path.exists(IDX_PATH):
-                raise FileNotFoundError(f"Neither {FAISS_PATH} nor {IDX_PATH} found.")
-            idx_data = np.load(IDX_PATH)
-            index = faiss.IndexFlatL2(idx_data.shape[1])
-            index.add(idx_data.astype(np.float32))
-            faiss.write_index(index, FAISS_PATH)
-            print("🔄 Converted .idx → .faiss and saved")
-        print(f"📦 FAISS index dimension: {index.d}")
+# Load FAISS index
+def load_faiss_index():
+    index = faiss.read_index(FAISS_FAISS_PATH)
+    print(f"📦 FAISS index dimension: {index.d}")
     return index
 
-# -----------------------------
-# Generate Embedding using Gemini
-# -----------------------------
-def get_embedding(text):
-    """
-    Generate embeddings using Gemini 2.0.
-    """
-    model_id = "embed_text_2.0"
-    try:
-        response = genai.get_embeddings(model=model_id, text=text)
-        return np.array(response["embedding"], dtype=np.float32)
-    except Exception as e:
-        print("⚠️ Gemini embedding failed:", e)
-        return None  # fallback handled in retrieve_context
+# Simple random projection for query embedding (matches FAISS dimension 384)
+def embed_query(query, dim=384):
+    # Use deterministic hashing for lightweight embedding
+    vec = np.zeros(dim, dtype='float32')
+    for i, c in enumerate(query):
+        vec[i % dim] += ord(c) % 256
+    vec /= np.linalg.norm(vec) + 1e-10
+    return vec.reshape(1, -1).astype('float32')
 
-# -----------------------------
-# Fallback TF-IDF initialization
-# -----------------------------
-def init_tfidf():
-    global tfidf_vectorizer, tfidf_matrix
-    if tfidf_vectorizer is None or tfidf_matrix is None:
-        docs = load_documents()
-        tfidf_vectorizer = TfidfVectorizer(max_features=5000)
-        tfidf_matrix = tfidf_vectorizer.fit_transform([d.get("content", "") for d in docs])
-        print("📝 TF-IDF fallback initialized")
-
-# -----------------------------
-# Retrieve Relevant Context
-# -----------------------------
+# Retrieve top-k documents
 def retrieve_context(query, top_k=5):
-    """
-    Retrieve top_k documents relevant to the query using FAISS or TF-IDF fallback.
-    """
     docs = load_documents()
-    idx = load_index()
-
-    query_vec = get_embedding(query)
-
-    # ✅ If Gemini embedding works, use FAISS
-    if query_vec is not None:
-        D, I = idx.search(np.array([query_vec]), top_k)
-        results = [docs[i] for i in I[0] if i < len(docs)]
-        return results
-
-    # ⚠️ Fallback TF-IDF retrieval
-    print("⚠️ Using TF-IDF fallback for retrieval")
-    init_tfidf()
-    query_vec_tfidf = tfidf_vectorizer.transform([query])
-    similarities = cosine_similarity(query_vec_tfidf, tfidf_matrix)
-    top_indices = similarities[0].argsort()[::-1][:top_k]
-    results = [docs[i] for i in top_indices]
-    return results
+    index = load_faiss_index()
+    query_vec = embed_query(query, dim=index.d)
+    distances, indices = index.search(query_vec, top_k)
+    retrieved = [docs[i] for i in indices[0]]
+    return retrieved
