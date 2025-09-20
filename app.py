@@ -402,8 +402,9 @@ def download_pdf():
 
     cover_path = "static/Cover.pdf"
     if os.path.exists(cover_path):
-        cover_doc = fitz.open(cover_path)
-        final_pdf.insert_pdf(cover_doc)
+        cover_doc = fitz.open(cover_path)   
+        final_pdf.insert_pdf(cover_doc, start=0)
+
 
     for i, page in enumerate(content_doc):
         bg_page = template_doc[0]
