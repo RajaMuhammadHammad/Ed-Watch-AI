@@ -395,15 +395,15 @@ def download_pdf():
     blank_template_path = "static/Template.pdf"
     if not os.path.exists(blank_template_path):
         return "Template not found", 404
-
     template_doc = fitz.open(blank_template_path)
     content_doc = fitz.open("pdf", report_pdf_stream.getvalue())
+    
     final_pdf = fitz.open()
 
-    cover_path = "static/Cover.pdf"
+    cover_path = "static/cover.pdf"
     if os.path.exists(cover_path):
         cover_doc = fitz.open(cover_path)   
-        final_pdf.insert_pdf(cover_doc, start=0)
+        final_pdf.insert_pdf(cover_doc)
 
 
     for i, page in enumerate(content_doc):
